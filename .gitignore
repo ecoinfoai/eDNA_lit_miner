@@ -1,0 +1,8 @@
+venv/
+.env
+data/logs/
+data/input/*.yaml
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
