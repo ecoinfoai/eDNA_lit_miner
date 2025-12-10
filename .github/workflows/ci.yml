@@ -28,3 +28,15 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pytest
+
+  ci-success:
+    name: CI
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check build matrix status
+        if: needs.build.result != 'success'
+        run: exit 1
+      - name: All tests passed
+        run: echo "All CI checks passed successfully"
