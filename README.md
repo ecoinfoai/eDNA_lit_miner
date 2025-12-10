@@ -1,5 +1,10 @@
 # eDNA Literature Miner
 
+[![Stable Build](https://github.com/ecoinfoai/eDNA_lit_miner/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/ecoinfoai/eDNA_lit_miner/actions/workflows/ci.yml)
+[![Dev Build](https://github.com/ecoinfoai/eDNA_lit_miner/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/ecoinfoai/eDNA_lit_miner/actions/workflows/ci.yml)
+[![Build Status](https://github.com/ecoinfoai/eDNA_lit_miner/actions/workflows/ci.yml/badge.svg)](https://github.com/ecoinfoai/eDNA_lit_miner/actions/workflows/ci.yml)
+[![Coverage](coverage.svg)](https://github.com/ecoinfoai/eDNA_lit_miner/actions)
+
 This tool automates the search for environmental DNA (eDNA) studies related to specific species across multiple literature providers (PubMed, Semantic Scholar) and saves the results to Zotero.
 
 ## Features
