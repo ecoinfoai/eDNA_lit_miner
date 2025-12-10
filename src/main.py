@@ -121,7 +121,7 @@ def main():
         # Deduplication (by Title or DOI)
         unique_results = {}
         for res in all_results:
-            key = res.doi if res.doi else res.title
+            key = res.doi if res.doi else res.title.lower().strip()
             if key not in unique_results:
                 unique_results[key] = res
         

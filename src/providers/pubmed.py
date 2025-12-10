@@ -18,10 +18,6 @@ class PubMedProvider(SearchProvider):
                 return []
 
             # 2. Fetch details for IDs
-            handle = Entrez.efetch(db="pubmed", id=id_list, rettype="medline", retmode="text")
-            # We use Medline parser or simply parse xml. let's use xml for better structured data, 
-            # but usually Medline format is good for parsing. 
-            # Actually, let's use retmode='xml' and Entrez.read for easier parsing of multiple items.
             handle = Entrez.efetch(db="pubmed", id=id_list, retmode="xml")
             papers = Entrez.read(handle)
             handle.close()
