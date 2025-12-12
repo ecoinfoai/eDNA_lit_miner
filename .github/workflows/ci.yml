@@ -1,20 +1,18 @@
 name: CI
-
 on:
   push:
     branches: [ master, main, develop ]
   pull_request:
     branches: [ master, main, develop ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     strategy:
+      fail-fast: false  # 한 버전 실패해도 다른 버전 계속 실행
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
     - uses: actions/checkout@v4
       with:
@@ -25,6 +23,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        allow-prereleases: false
     
     - name: Install dependencies
       run: |
