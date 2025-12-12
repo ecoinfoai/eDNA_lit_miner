@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
     branches: [ master, main, develop ]
@@ -9,17 +8,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
     - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0
     
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
@@ -35,11 +29,48 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pytest --cov=src --cov-report=term-missing
-    
-    - name: Generate and Commit Coverage Badge
-      if: matrix.python-version == '3.12' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+  # Ruleset용 단일 status check
+  CI:
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Check build results
       run: |
+        if [ "${{ needs.build.result }}" != "success" ]; then
+          echo "Build failed"
+          exit 1
+        fi
+        echo "All builds passed"
+
+  coverage:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    
+    - name: Install and run coverage
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest pytest-cov coverage-badge
+        python -m pytest --cov=src --cov-report=term-missing
         coverage-badge -o coverage.svg -f
+    
+    - name: Commit Coverage Badge
+      run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git add coverage.svg
