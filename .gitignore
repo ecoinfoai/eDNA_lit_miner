@@ -2,7 +2,9 @@ venv/
 .env
 data/logs/
 data/input/*.yaml
+data/abstracts_cache.yaml
 __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+coverage.svg

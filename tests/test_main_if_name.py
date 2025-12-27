@@ -11,4 +11,4 @@ def test_if_name_main(capsys):
              runpy.run_module("src.main", run_name="__main__")
 
     captured = capsys.readouterr()
-    assert "usage: main.py" in captured.out
+    assert "eDNA Literature Miner" in captured.out

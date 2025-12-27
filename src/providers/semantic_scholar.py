@@ -22,10 +22,6 @@ class SemanticScholarProvider(SearchProvider):
                 title = item.title if item.title else ""
                 year = str(item.year) if item.year else ""
                 doi = item.externalIds.get('DOI') if item.externalIds else ""
-                if not doi and item.publicationVenue and isinstance(item.publicationVenue, dict):
-                     # fallback mechanism if DOI is elsewhere (unlikely in this lib but safe to check)
-                     pass
-                
                 url = item.url if item.url else ""
                 abstract = item.abstract if item.abstract else ""
 

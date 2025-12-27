@@ -67,7 +67,7 @@ def test_main_dry_run_success(mock_args, mock_config, mock_input_manager, mock_p
     assert "Loaded 1 species" in captured.out
     assert "Dry Run: Using dummy email for PubMed." in captured.out
     assert "Processing species: Gadus morhua" in captured.out
-    assert "Dry Run: Skipping Zotero upload." in captured.out
+    assert "Dry Run: Skipping Zotero upload and cache." in captured.out
     assert "Processing Complete." in captured.out
 
     config_instance.validate.assert_not_called()

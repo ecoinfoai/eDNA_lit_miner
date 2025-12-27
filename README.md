@@ -12,6 +12,7 @@ This tool automates the search for environmental DNA (eDNA) studies related to s
 
 - **Multi-Provider Search**: Searches PubMed and Semantic Scholar.
 - **Zotero Integration**: Automatically saves unique results to species-specific collections in Zotero.
+- **Abstract Cache**: Saves bibliographic information and abstracts to a YAML file for LLM analysis.
 - **Duplicate Removal**: Deduplicates results based on DOI or Title.
 - **Configurable**: Uses `.env` for API keys and configuration.
 - **YAML Input**: specific species, synonyms, and keywords defined in a simple YAML format.
@@ -79,3 +80,59 @@ species:
 ```
 
 See `test_species.yaml` for a working example.
+
+## Output Files
+
+When the tool runs successfully, it creates:
+
+1. **Zotero Collections**: Papers are organized in species-specific collections (e.g., "eDNA - Gadus morhua")
+2. **Abstract Cache** (`data/abstracts_cache.yaml`): A single YAML file containing all papers with:
+   - Bibliographic information (title, authors, year, DOI, URL)
+   - Full abstracts
+   - Zotero keys for reference
+   - Search keywords used
+   - Timestamps
+
+### Abstract Cache Structure
+
+```yaml
+metadata:
+  created_at: '2025-12-26T10:30:00'
+  last_updated: '2025-12-26T10:35:00'
+  total_species: 2
+  total_papers: 15
+
+species:
+  - name: Gadus morhua
+    keywords:
+      - eDNA
+      - metabarcoding
+    papers:
+      - zotero_key: ABC123XYZ
+        title: "eDNA monitoring of Atlantic cod..."
+        authors:
+          - Smith, John
+          - Doe, Jane
+        year: '2023'
+        doi: 10.1234/example
+        source: PubMed
+        url: https://pubmed.ncbi.nlm.nih.gov/12345/
+        abstract: "This study presents..."
+        added_at: '2025-12-26T10:30:00'
+```
+
+### Using the Abstract Cache for LLM Analysis
+
+The abstract cache is designed for easy integration with LLM workflows:
+
+```python
+from src.abstract_cache import AbstractCache
+
+cache = AbstractCache()
+
+# Get formatted text for LLM analysis
+abstracts_text = cache.get_all_abstracts_text("Gadus morhua")
+
+# Send to LLM for analysis
+# Example: Analyze species characteristics, summarize findings, etc.
+```

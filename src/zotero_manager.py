@@ -1,5 +1,5 @@
 from pyzotero import zotero
-from typing import Dict, Any, List
+from typing import List
 from src.providers.base import SearchResult
 
 class ZoteroManager:

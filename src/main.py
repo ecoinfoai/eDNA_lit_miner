@@ -1,5 +1,4 @@
 import argparse
-import os
 import sys
 from typing import List
 
@@ -9,6 +8,7 @@ from src.providers.pubmed import PubMedProvider
 from src.providers.semantic_scholar import SemanticScholarProvider
 from src.zotero_manager import ZoteroManager
 from src.providers.base import SearchResult
+from src.abstract_cache import AbstractCache
 
 def main():
     parser = argparse.ArgumentParser(description="eDNA Literature Miner")
@@ -70,8 +70,8 @@ def main():
     if not args.dry_run:
         try:
             zotero_manager = ZoteroManager(
-                library_id=config.ZOTERO_LIBRARY_ID, 
-                api_key=config.ZOTERO_API_KEY, 
+                library_id=config.ZOTERO_LIBRARY_ID,
+                api_key=config.ZOTERO_API_KEY,
                 library_type=config.ZOTERO_LIBRARY_TYPE
             )
             print("Zotero Manager initialized.")
@@ -79,7 +79,11 @@ def main():
              print(f"Zotero Init Error: {e}")
              sys.exit(1)
 
-    # 5. Process Each Species
+    # 5. Initialize Abstract Cache
+    abstract_cache = AbstractCache()
+    print("Abstract Cache initialized.")
+
+    # 6. Process Each Species
     for species in species_list:
         print(f"\nProcessing species: {species.species_name}")
         
@@ -102,12 +106,6 @@ def main():
                 keyword_part = f" AND {kw_terms[0]}"
         
         full_query = name_part + keyword_part
-        if species.date_range:
-             # Date range handling varies by provider, adding as text for now or ignoring for MVP simplicity in query string
-             # PubMed supports 2020:2024[dp] but Semantic Scholar is different.
-             # For MVP, we stick to keywords.
-             pass
-             
         print(f"  Query: {full_query}")
         
         all_results: List[SearchResult] = []
@@ -129,7 +127,7 @@ def main():
         print(f"  Total unique results: {len(deduplicated)}")
         
         if args.dry_run:
-            print("  Dry Run: Skipping Zotero upload.")
+            print("  Dry Run: Skipping Zotero upload and cache.")
             for res in deduplicated[:3]: # Print first 3
                  print(f"    - [{res.source}] {res.title} ({res.year})")
         else:
@@ -138,16 +136,29 @@ def main():
                 try:
                     col_id = zotero_manager.create_or_get_collection(collection_name)
                     print(f"  Target Collection ID: {col_id}")
-                    
+
+                    zotero_keys = []
                     count = 0
                     for item in deduplicated:
                         # Simple check might be needed here to avoid duplicates in Zotero if code runs twice
                         # But requires searching Zotero first. For MVP, we just add.
                         new_key = zotero_manager.add_item(item, col_id)
                         if new_key:
+                            zotero_keys.append(new_key)
                             count += 1
                     print(f"  Added {count} items to Zotero.")
-                    
+
+                    # Save to abstract cache
+                    if zotero_keys:
+                        papers_to_cache = [item for item, key in zip(deduplicated, zotero_keys) if key]
+                        abstract_cache.add_papers(
+                            species_name=species.species_name,
+                            papers=papers_to_cache,
+                            zotero_keys=zotero_keys,
+                            keywords=species.keywords
+                        )
+                        print(f"  Cached {len(zotero_keys)} papers to abstracts_cache.yaml")
+
                 except Exception as e:
                     print(f"  Error processing Zotero for {species.species_name}: {e}")
 
